@@ -1,0 +1,847 @@
+{
+  "info": {
+    "name": "Tour and Travel Management System API",
+    "description": "Complete API collection for testing the Tour and Travel Management System",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Company User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"company@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Travel\",\n  \"last_name\": \"Company\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"COMPANY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.data.tokens.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Register Company Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Travel Adventures Ltd\",\n  \"description\": \"Premium travel experiences around the world\",\n  \"address\": \"123 Travel Street, Tourism City\",\n  \"phone\": \"+1234567890\",\n  \"email\": \"info@traveladventures.com\",\n  \"website\": \"https://traveladventures.com\",\n  \"license_number\": \"TL123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/company/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "company", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Packages",
+      "item": [
+        {
+          "name": "Get All Packages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/packages?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Packages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/packages?location=paris&min_price=100&max_price=1000&search=tour",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages"],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "paris"
+                },
+                {
+                  "key": "min_price",
+                  "value": "100"
+                },
+                {
+                  "key": "max_price",
+                  "value": "1000"
+                },
+                {
+                  "key": "search",
+                  "value": "tour"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Package by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/packages/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Paris City Tour\",\n  \"description\": \"Explore the beautiful city of Paris with our comprehensive 5-day tour package. Visit iconic landmarks, enjoy local cuisine, and experience the rich culture of France.\",\n  \"location\": \"Paris, France\",\n  \"duration_days\": 5,\n  \"price\": 599.99,\n  \"max_people\": 20,\n  \"available_slots\": 20,\n  \"start_date\": \"2024-06-01\",\n  \"end_date\": \"2024-08-31\",\n  \"includes\": \"Hotel accommodation, Daily breakfast, Transportation, Tour guide\",\n  \"excludes\": \"Flight tickets, Lunch and dinner, Personal expenses\",\n  \"itinerary\": [\n    {\n      \"day\": 1,\n      \"title\": \"Arrival and City Overview\",\n      \"description\": \"Airport pickup and introduction to Paris\",\n      \"activities\": [\"Airport pickup\", \"Hotel check-in\", \"Evening city tour\"]\n    },\n    {\n      \"day\": 2,\n      \"title\": \"Historic Paris\",\n      \"description\": \"Visit historic landmarks and museums\",\n      \"activities\": [\"Louvre Museum\", \"Notre-Dame Cathedral\", \"Seine River cruise\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/packages",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages"]
+            }
+          }
+        },
+        {
+          "name": "Update Package",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 649.99,\n  \"available_slots\": 15\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/packages/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get My Packages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/packages/my/packages",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages", "my", "packages"]
+            }
+          }
+        },
+        {
+          "name": "Delete Package",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/packages/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["packages", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"package_id\": 1,\n  \"number_of_people\": 2,\n  \"booking_date\": \"2024-06-15\",\n  \"special_requests\": \"Vegetarian meals preferred. Need wheelchair accessible accommodation.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/my?status=confirmed",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "my"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "confirmed"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Booking by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "1", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Get Company Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/company",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "company"]
+            }
+          }
+        },
+        {
+          "name": "Update Booking Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "1", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1199.98,\n  \"payment_method\": \"telebirr\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/booking/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "booking", "1"]
+            }
+          }
+        },
+        {
+          "name": "Process Payment (Success)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"success\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/1/process",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "1", "process"]
+            }
+          }
+        },
+        {
+          "name": "Process Payment (Failed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"success\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/1/process",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "1", "process"]
+            }
+          }
+        },
+        {
+          "name": "Get My Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "my"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"package_id\": 1,\n  \"booking_id\": 1,\n  \"rating\": 5,\n  \"comment\": \"Amazing experience! The tour was well organized and the guide was very knowledgeable. Highly recommended for anyone visiting Paris.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"]
+            }
+          }
+        },
+        {
+          "name": "Get Package Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/reviews/package/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "package", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get My Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "my"]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Good experience overall. The tour was informative but could have been better organized.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?is_read=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
+              "query": [
+                {
+                  "key": "is_read",
+                  "value": "false"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/unread-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "unread-count"]
+            }
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/1/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "1", "read"]
+            }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/mark-all-read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "mark-all-read"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?role=USER&search=john",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "USER"
+                },
+                {
+                  "key": "search",
+                  "value": "john"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get All Companies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/companies?verified=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "companies"],
+              "query": [
+                {
+                  "key": "verified",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Company",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_verified\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/companies/1/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "companies", "1", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}

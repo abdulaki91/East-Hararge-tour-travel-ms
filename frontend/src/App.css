@@ -1,0 +1,136 @@
+/* App-specific styles */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Custom toast styles to match our design */
+.Toastify__toast {
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.9) 0%,
+    rgba(22, 163, 74, 0.9) 100%
+  );
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.9) 0%,
+    rgba(220, 38, 38, 0.9) 100%
+  );
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.9) 0%,
+    rgba(37, 99, 235, 0.9) 100%
+  );
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.9) 0%,
+    rgba(217, 119, 6, 0.9) 100%
+  );
+}
+
+/* Loading states */
+.loading-container {
+  display: flex;
+  items-center: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Smooth transitions for route changes */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition:
+    opacity 300ms ease-in,
+    transform 300ms ease-in;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print,
+  nav,
+  footer,
+  .btn,
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn-primary {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #000 !important;
+  }
+
+  .btn-outline {
+    background: #fff !important;
+    color: #000 !important;
+    border: 2px solid #000 !important;
+  }
+
+  .card {
+    border: 2px solid #000 !important;
+  }
+}
