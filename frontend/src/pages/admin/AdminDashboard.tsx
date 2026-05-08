@@ -4,14 +4,13 @@ import {
   UsersIcon,
   BuildingOfficeIcon,
   CubeIcon,
-  CurrencyDollarIcon,
   ChartBarIcon,
-  ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 import { adminService } from "../../services/admin";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Button from "../../components/ui/Button";
+import GrowthChart from "../../components/admin/GrowthChart";
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -60,7 +59,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 group hover:scale-105">
           <div className="flex items-center">
             <div className="flex-shrink-0 p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-lg group-hover:shadow-primary-200">
@@ -114,26 +113,10 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 group hover:scale-105">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 p-3 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl shadow-lg group-hover:shadow-accent-200">
-              <CurrencyDollarIcon className="h-8 w-8 text-white" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                Total Revenue
-              </p>
-              <p className="text-3xl font-bold text-gray-900 font-display">
-                ${stats?.total_revenue?.toLocaleString() || 0}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Additional Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900 font-display">
@@ -165,32 +148,10 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900 font-display">
-              System Health
-            </h3>
-            <div className="p-2 bg-gradient-to-br from-success-100 to-success-200 rounded-xl">
-              <ArrowTrendingUpIcon className="h-6 w-6 text-success-600" />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
-              <span className="text-sm font-medium text-gray-600">
-                System Status
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-success-100 to-success-200 text-success-800 shadow-sm">
-                🟢 Healthy
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-4 bg-success-50 rounded-xl">
-              <span className="text-sm font-medium text-gray-600">Uptime</span>
-              <span className="font-bold text-lg text-success-600">99.9%</span>
-            </div>
-          </div>
-        </div>
       </div>
+
+      {/* Growth Chart */}
+      <GrowthChart />
     </div>
   );
 };

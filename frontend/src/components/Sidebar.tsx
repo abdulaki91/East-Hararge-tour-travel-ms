@@ -32,6 +32,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { isCompanyVerified } = useCompanyCheck();
   const location = useLocation();
 
+  // Prevent closing on desktop
+  const handleClose = () => {
+    if (window.innerWidth < 1024) {
+      // Only close on mobile
+      onClose();
+    }
+  };
+
   const getMenuItems = () => {
     switch (user?.role) {
       case "ADMIN":
@@ -201,28 +209,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
-          onClick={onClose}
+          onClick={handleClose}
         />
       )}
 
       {/* Sidebar */}
       <div
         className={clsx(
-          "fixed top-0 left-0 z-50 w-64 h-screen transition-all duration-300 bg-white/95 backdrop-blur-md border-r border-white/20 shadow-2xl lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed top-0 left-0 z-50 w-64 h-screen transition-all duration-300 bg-white/95 backdrop-blur-md border-r border-white/20 shadow-2xl flex flex-col",
+          "lg:translate-x-0", // Always visible on desktop
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0", // Slide on mobile, always visible on desktop
         )}
         style={{ paddingTop: "var(--navbar-height)" }}
       >
         {/* Mobile close button */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-500 rounded-xl lg:hidden hover:bg-slate-100 hover:text-slate-900 transition-all duration-200"
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-2 text-slate-500 rounded-xl lg:hidden hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Logo - Mobile */}
-        <div className="flex items-center space-x-3 px-6 pb-6 border-b border-slate-200/50 lg:hidden">
+        <div className="flex items-center space-x-3 px-6 pb-6 border-b border-slate-200/50 lg:hidden flex-shrink-0">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
             <MapPin className="h-6 w-6 text-white" />
           </div>
@@ -235,7 +244,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* User Info */}
-        <div className="px-6 py-4 border-b border-slate-200/50">
+        <div className="px-6 py-4 border-b border-slate-200/50 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
               <User className="w-6 h-6 text-white" />
@@ -274,8 +283,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="h-full px-4 pb-4 overflow-y-auto scrollbar-custom">
+        {/* Navigation - Scrollable */}
+        <div className="flex-1 px-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
           <div className="py-4">
             <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
               Main Menu
@@ -289,7 +298,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   <li key={item.path}>
                     <Link
                       to={item.path}
-                      onClick={onClose}
+                      onClick={handleClose}
                       className={clsx(
                         "flex items-center px-3 py-3 rounded-xl font-medium transition-all duration-200 group",
                         getColorClasses(item.color, isActive),
@@ -322,7 +331,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <div className="py-4 border-t border-slate-200/50">
             <Link
               to="/"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex items-center px-3 py-3 rounded-xl font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 group mb-2"
             >
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-all duration-200">
@@ -347,7 +356,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             {/* Browse Packages Link */}
             <Link
               to="/packages"
-              onClick={onClose}
+              onClick={handleClose}
               className={clsx(
                 "flex items-center px-3 py-3 rounded-xl font-medium transition-all duration-200 group",
                 location.pathname === "/packages"

@@ -10,6 +10,7 @@ import {
   EyeIcon,
   QrCodeIcon,
 } from "@heroicons/react/24/outline";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { paymentService } from "../../services/payments";
 import type { PaymentFilters } from "../../services/payments";
 import Button from "../../components/ui/Button";
@@ -18,6 +19,15 @@ import EmptyState from "../../components/ui/EmptyState";
 import Badge from "../../components/ui/Badge";
 import Pagination from "../../components/common/Pagination";
 import PaymentVerificationModal from "../../components/ui/PaymentVerificationModal";
+import {
+  exportToExcel,
+  exportToPDF,
+  exportToCSV,
+  formatDateForExport,
+  formatCurrencyForExport,
+  formatStatus,
+} from "../../utils/exportUtils";
+import toast from "react-hot-toast";
 
 const PaymentHistory: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +37,7 @@ const PaymentHistory: React.FC = () => {
   });
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["user-payments", filters],
@@ -47,6 +58,105 @@ const PaymentHistory: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));
+  };
+
+  // Export functions
+  const handleExportToExcel = () => {
+    if (payments.length === 0) {
+      toast.error("No payments to export");
+      return;
+    }
+
+    const exportData = payments.map((payment: any) => ({
+      transaction_ref: payment.transaction_reference,
+      booking_reference: payment.booking_reference || "N/A",
+      package_title: payment.package_title || "N/A",
+      amount: formatCurrencyForExport(payment.amount),
+      payment_method: payment.payment_method?.toUpperCase() || "N/A",
+      status: formatStatus(payment.status),
+      payment_date: formatDateForExport(payment.created_at),
+    }));
+
+    exportToExcel({
+      filename: `payment-history-${new Date().toISOString().split("T")[0]}`,
+      columns: [
+        { header: "Transaction Ref", key: "transaction_ref", width: 25 },
+        { header: "Booking Ref", key: "booking_reference", width: 20 },
+        { header: "Package", key: "package_title", width: 30 },
+        { header: "Amount", key: "amount", width: 15 },
+        { header: "Payment Method", key: "payment_method", width: 15 },
+        { header: "Status", key: "status", width: 15 },
+        { header: "Payment Date", key: "payment_date", width: 15 },
+      ],
+      data: exportData,
+    });
+
+    toast.success("Payment history exported to Excel successfully!");
+  };
+
+  const handleExportToPDF = () => {
+    if (payments.length === 0) {
+      toast.error("No payments to export");
+      return;
+    }
+
+    const exportData = payments.map((payment: any) => ({
+      transaction_ref: payment.transaction_reference,
+      package_title: payment.package_title || "N/A",
+      amount: formatCurrencyForExport(payment.amount),
+      payment_method: payment.payment_method?.toUpperCase() || "N/A",
+      status: formatStatus(payment.status),
+      payment_date: formatDateForExport(payment.created_at),
+    }));
+
+    exportToPDF({
+      filename: `payment-history-${new Date().toISOString().split("T")[0]}`,
+      title: "Payment History Report",
+      columns: [
+        { header: "Transaction Ref", key: "transaction_ref", width: 25 },
+        { header: "Package", key: "package_title", width: 35 },
+        { header: "Amount", key: "amount", width: 15 },
+        { header: "Method", key: "payment_method", width: 15 },
+        { header: "Status", key: "status", width: 15 },
+        { header: "Date", key: "payment_date", width: 15 },
+      ],
+      data: exportData,
+    });
+
+    toast.success("Payment history exported to PDF successfully!");
+  };
+
+  const handleExportToCSV = () => {
+    if (payments.length === 0) {
+      toast.error("No payments to export");
+      return;
+    }
+
+    const exportData = payments.map((payment: any) => ({
+      transaction_ref: payment.transaction_reference,
+      booking_reference: payment.booking_reference || "N/A",
+      package_title: payment.package_title || "N/A",
+      amount: formatCurrencyForExport(payment.amount),
+      payment_method: payment.payment_method?.toUpperCase() || "N/A",
+      status: formatStatus(payment.status),
+      payment_date: formatDateForExport(payment.created_at),
+    }));
+
+    exportToCSV({
+      filename: `payment-history-${new Date().toISOString().split("T")[0]}`,
+      columns: [
+        { header: "Transaction Ref", key: "transaction_ref" },
+        { header: "Booking Ref", key: "booking_reference" },
+        { header: "Package", key: "package_title" },
+        { header: "Amount", key: "amount" },
+        { header: "Payment Method", key: "payment_method" },
+        { header: "Status", key: "status" },
+        { header: "Payment Date", key: "payment_date" },
+      ],
+      data: exportData,
+    });
+
+    toast.success("Payment history exported to CSV successfully!");
   };
 
   const handleVerifyPayment = (payment: any) => {
@@ -143,9 +253,68 @@ const PaymentHistory: React.FC = () => {
               Track all your payment transactions 💳
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-primary-100 text-sm">Total Payments</p>
-            <p className="text-3xl font-bold">{pagination?.totalItems || 0}</p>
+          <div className="flex items-center gap-4">
+            {/* Export Dropdown */}
+            {payments.length > 0 && (
+              <div className="relative">
+                <Button
+                  size="lg"
+                  className="bg-white text-primary-600 hover:bg-gray-100 shadow-lg hover:shadow-xl flex items-center gap-2"
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                >
+                  <Download className="w-5 h-5" />
+                  Export
+                </Button>
+                {showExportMenu && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowExportMenu(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-20">
+                      <div className="py-2">
+                        <button
+                          onClick={() => {
+                            handleExportToExcel();
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                          Export to Excel
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExportToPDF();
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-red-600" />
+                          Export to PDF
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExportToCSV();
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          Export to CSV
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            <div className="text-right">
+              <p className="text-primary-100 text-sm">Total Payments</p>
+              <p className="text-3xl font-bold">
+                {pagination?.totalItems || 0}
+              </p>
+            </div>
           </div>
         </div>
       </div>

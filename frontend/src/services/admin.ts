@@ -73,6 +73,11 @@ export const adminService = {
     return response.data;
   },
 
+  async getGrowthAnalytics(): Promise<ApiResponse<any[]>> {
+    const response = await api.get("/admin/growth-analytics");
+    return response.data;
+  },
+
   async getUsers(filters: UserFilters = {}): Promise<PaginatedResponse<User>> {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {

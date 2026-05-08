@@ -34,6 +34,22 @@ export class AdminController {
     }
   }
 
+  static async getGrowthAnalytics(req, res) {
+    try {
+      const growthData = await AdminService.getGrowthAnalytics();
+
+      res.status(200).json({
+        success: true,
+        data: growthData,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
   static async getAllUsers(req, res) {
     try {
       const result = await AdminService.getAllUsers(req.query);

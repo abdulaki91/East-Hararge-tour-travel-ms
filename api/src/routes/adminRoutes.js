@@ -159,6 +159,7 @@ router.use(authorize("ADMIN"));
 // Dashboard and Stats
 router.get("/dashboard", AdminController.getDashboard);
 router.get("/stats", AdminController.getStats);
+router.get("/growth-analytics", AdminController.getGrowthAnalytics);
 router.get("/health", AdminController.getSystemHealth);
 
 // User management

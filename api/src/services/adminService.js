@@ -103,6 +103,91 @@ export class AdminService {
     };
   }
 
+  static async getGrowthAnalytics() {
+    // Get monthly user registrations for the last 6 months
+    const [userGrowth] = await pool.execute(
+      `SELECT 
+        DATE_FORMAT(created_at, '%b') as month,
+        COUNT(*) as users
+      FROM users
+      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b')
+      ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC`,
+    );
+
+    // Get monthly company registrations for the last 6 months
+    const [companyGrowth] = await pool.execute(
+      `SELECT 
+        DATE_FORMAT(created_at, '%b') as month,
+        COUNT(*) as companies
+      FROM companies
+      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b')
+      ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC`,
+    );
+
+    // Get monthly bookings for the last 6 months
+    const [bookingGrowth] = await pool.execute(
+      `SELECT 
+        DATE_FORMAT(created_at, '%b') as month,
+        COUNT(*) as bookings
+      FROM bookings
+      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b')
+      ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC`,
+    );
+
+    // Combine data by month
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const currentMonth = new Date().getMonth();
+    const last6Months = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      last6Months.push(months[monthIndex]);
+    }
+
+    // Create a map for easy lookup
+    const userMap = {};
+    const companyMap = {};
+    const bookingMap = {};
+
+    userGrowth.forEach((item) => {
+      userMap[item.month] = parseInt(item.users);
+    });
+
+    companyGrowth.forEach((item) => {
+      companyMap[item.month] = parseInt(item.companies);
+    });
+
+    bookingGrowth.forEach((item) => {
+      bookingMap[item.month] = parseInt(item.bookings);
+    });
+
+    // Build the result array
+    const growthData = last6Months.map((month) => ({
+      month,
+      users: userMap[month] || 0,
+      companies: companyMap[month] || 0,
+      bookings: bookingMap[month] || 0,
+    }));
+
+    return growthData;
+  }
+
   static async getAllUsers(filters = {}) {
     const {
       page = 1,

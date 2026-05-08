@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { bookingService } from "../../services/bookings";
 import { paymentService } from "../../services/payments";
 import type { BookingFilters, BookingStatus } from "../../types";
@@ -10,6 +11,14 @@ import EmptyState from "../../components/ui/EmptyState";
 import BookingFiltersComponent from "../../components/user/BookingFilters";
 import BookingCard from "../../components/user/BookingCard";
 import Pagination from "../../components/common/Pagination";
+import {
+  exportToExcel,
+  exportToPDF,
+  exportToCSV,
+  formatDateForExport,
+  formatCurrencyForExport,
+  formatStatus,
+} from "../../utils/exportUtils";
 import toast from "react-hot-toast";
 
 const UserBookings: React.FC = () => {
@@ -20,6 +29,7 @@ const UserBookings: React.FC = () => {
     limit: 10,
   });
   const [showAll, setShowAll] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["user-bookings", filters],
@@ -126,6 +136,117 @@ const UserBookings: React.FC = () => {
     setFilters((prev) => ({ ...prev, page }));
   };
 
+  // Export functions
+  const handleExportToExcel = () => {
+    if (!bookings || bookings.length === 0) {
+      toast.error("No bookings to export");
+      return;
+    }
+
+    const exportData = bookings.map((booking: any) => ({
+      booking_reference: booking.booking_reference,
+      package_title: booking.package?.title || "N/A",
+      destination: booking.package?.location || "N/A",
+      booking_date: formatDateForExport(booking.booking_date),
+      travel_date: formatDateForExport(booking.travel_date),
+      number_of_people: booking.number_of_people,
+      total_amount: formatCurrencyForExport(booking.total_amount),
+      status: formatStatus(booking.status),
+      payment_status: booking.payment?.status
+        ? formatStatus(booking.payment.status)
+        : "Pending",
+    }));
+
+    exportToExcel({
+      filename: `my-bookings-${new Date().toISOString().split("T")[0]}`,
+      columns: [
+        { header: "Booking Reference", key: "booking_reference", width: 20 },
+        { header: "Package", key: "package_title", width: 30 },
+        { header: "Destination", key: "destination", width: 20 },
+        { header: "Booking Date", key: "booking_date", width: 15 },
+        { header: "Travel Date", key: "travel_date", width: 15 },
+        { header: "People", key: "number_of_people", width: 10 },
+        { header: "Total Amount", key: "total_amount", width: 15 },
+        { header: "Status", key: "status", width: 15 },
+        { header: "Payment Status", key: "payment_status", width: 15 },
+      ],
+      data: exportData,
+    });
+
+    toast.success("Bookings exported to Excel successfully!");
+  };
+
+  const handleExportToPDF = () => {
+    if (!bookings || bookings.length === 0) {
+      toast.error("No bookings to export");
+      return;
+    }
+
+    const exportData = bookings.map((booking: any) => ({
+      booking_reference: booking.booking_reference,
+      package_title: booking.package?.title || "N/A",
+      travel_date: formatDateForExport(booking.travel_date),
+      number_of_people: booking.number_of_people,
+      total_amount: formatCurrencyForExport(booking.total_amount),
+      status: formatStatus(booking.status),
+    }));
+
+    exportToPDF({
+      filename: `my-bookings-${new Date().toISOString().split("T")[0]}`,
+      title: "My Bookings Report",
+      columns: [
+        { header: "Reference", key: "booking_reference", width: 20 },
+        { header: "Package", key: "package_title", width: 40 },
+        { header: "Travel Date", key: "travel_date", width: 15 },
+        { header: "People", key: "number_of_people", width: 10 },
+        { header: "Amount", key: "total_amount", width: 15 },
+        { header: "Status", key: "status", width: 15 },
+      ],
+      data: exportData,
+    });
+
+    toast.success("Bookings exported to PDF successfully!");
+  };
+
+  const handleExportToCSV = () => {
+    if (!bookings || bookings.length === 0) {
+      toast.error("No bookings to export");
+      return;
+    }
+
+    const exportData = bookings.map((booking: any) => ({
+      booking_reference: booking.booking_reference,
+      package_title: booking.package?.title || "N/A",
+      destination: booking.package?.location || "N/A",
+      booking_date: formatDateForExport(booking.booking_date),
+      travel_date: formatDateForExport(booking.travel_date),
+      number_of_people: booking.number_of_people,
+      total_amount: formatCurrencyForExport(booking.total_amount),
+      status: formatStatus(booking.status),
+      payment_status: booking.payment?.status
+        ? formatStatus(booking.payment.status)
+        : "Pending",
+    }));
+
+    exportToCSV({
+      filename: `my-bookings-${new Date().toISOString().split("T")[0]}`,
+      columns: [
+        { header: "Booking Reference", key: "booking_reference" },
+        { header: "Package", key: "package_title" },
+        { header: "Destination", key: "destination" },
+        { header: "Booking Date", key: "booking_date" },
+        { header: "Travel Date", key: "travel_date" },
+        { header: "People", key: "number_of_people" },
+        { header: "Total Amount", key: "total_amount" },
+        { header: "Status", key: "status" },
+        { header: "Payment Status", key: "payment_status" },
+      ],
+      data: exportData,
+    });
+
+    toast.success("Bookings exported to CSV successfully!");
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-64">
@@ -173,32 +294,91 @@ const UserBookings: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex justify-between items-center mb-6">
-        <BookingFiltersComponent
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onClearFilters={handleClearFilters}
-        />
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+          <BookingFiltersComponent
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={handleClearFilters}
+          />
 
-        <div className="flex items-center space-x-4">
-          {!showAll && bookings.length > 0 && (
-            <Button
-              variant="outline"
-              onClick={handleViewAll}
-              className="whitespace-nowrap"
-            >
-              View All ({pagination?.totalItems || 0})
-            </Button>
-          )}
-          {showAll && (
-            <Button
-              variant="outline"
-              onClick={handleViewPaginated}
-              className="whitespace-nowrap"
-            >
-              Show Paginated
-            </Button>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Export Dropdown */}
+            {bookings.length > 0 && (
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  title="Export bookings"
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </Button>
+                {showExportMenu && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowExportMenu(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-20">
+                      <div className="py-2">
+                        <button
+                          onClick={() => {
+                            handleExportToExcel();
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                          Export to Excel
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExportToPDF();
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-red-600" />
+                          Export to PDF
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExportToCSV();
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          Export to CSV
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {!showAll && bookings.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={handleViewAll}
+                className="whitespace-nowrap"
+              >
+                View All ({pagination?.totalItems || 0})
+              </Button>
+            )}
+            {showAll && (
+              <Button
+                variant="outline"
+                onClick={handleViewPaginated}
+                className="whitespace-nowrap"
+              >
+                Show Paginated
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
